@@ -1,7 +1,9 @@
 package com.example.kennygame;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -22,6 +24,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
     TextView txtTime;
     TextView txtScore;
+    TextView txtBest;
     int score;
     ImageView imageView;
     ImageView imageView1;
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     Handler handler;
     Runnable runnable;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         });
         txtScore = findViewById(R.id.txtScore);
         txtTime = findViewById(R.id.txtTime);
+        txtBest = findViewById(R.id.txtBest);
         imageView = findViewById(R.id.imageView);
         imageView1 = findViewById(R.id.imageView1);
         imageView2 = findViewById(R.id.imageView2);
@@ -81,6 +86,15 @@ public class MainActivity extends AppCompatActivity {
         hideImage();
         score = 0;
 
+        sharedPreferences = this.getSharedPreferences("com.example.kennygame", Context.MODE_PRIVATE);
+        int beforeScore = sharedPreferences.getInt("bestScore", 0);
+        if(beforeScore > score) {
+            txtBest.setText("Best Score: "+beforeScore);
+        }
+        else{
+            txtBest.setText("Best Score: "+score);
+        }
+
         new CountDownTimer(10000, 1000) {
 
             //her bir sn de ne olacak
@@ -100,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
                 alert.setTitle("RESTART");
-                alert.setMessage("Do you wat play again??");
+                alert.setMessage("Do you want play again??");
                 alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -123,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
     public void increaseScore(View view ) {
         score ++;
         txtScore.setText("Score: "+score);
+        sharedPreferences.edit().putInt("bestScore", score).apply();
     }
     public void hideImage(){
         handler = new Handler();
@@ -136,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                 int i = random.nextInt(16);
                 imageArray[i].setVisibility(View.VISIBLE);
 
-                handler.postDelayed(this, 400);
+                handler.postDelayed(this, 1000);
             }
         };
         handler.post(runnable);
